@@ -5,34 +5,39 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import mean_squared_error
 
 # 读取数据
-file_path = r'C:\Users\zrhe2\Desktop\BTC_USDT_30m_2023-2024.csv'
-df = pd.read_csv(file_path, parse_dates=['date'])
+file_path = r'C:\Users\zrhe2\Desktop\BTCUSDT_30m_2018-2024.csv'
+df = pd.read_csv(file_path)
+
+# 将时间戳转换为日期时间格式
+df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')
 
 # 设定时间列为索引
-df.set_index('date', inplace=True)
+df.set_index('timestamp', inplace=True)
 
 # 随机选取7天数据
 start_date = df.index.min()
-end_date = start_date + pd.Timedelta(days=60)
+end_date = start_date + pd.Timedelta(days=1200)
 df_7days = df.loc[start_date:end_date]
 
 # 定义计算随机指标的函数
 
 
 def calculate_stoch(df, k, d):
-    low = df['close'].rolling(window=k).min()
-    high = df['close'].rolling(window=k).max()
+    low = df['low'].rolling(window=k).min()
+    high = df['high'].rolling(window=k).max()
     nk1 = ta.SMA((df['close'] - low) / (high - low) * 100, d)
     nd1 = ta.SMA(nk1, d)
     return nk1, nd1
 
 
 # 在2小时框架计算随机指标
-df_2h = df_7days.resample('2H').agg({'close': 'last'}).dropna()
+df_2h = df_7days.resample('2H').agg(
+    {'close': 'last', 'high': 'max', 'low': 'min'}).dropna()
 df_2h['nk1'], df_2h['nd1'] = calculate_stoch(df_2h, 30, 9)
 
 # 将2小时的计算结果填充到30分钟框架
-df_30m = df_7days.resample('30T').agg({'close': 'last'}).dropna()
+df_30m = df_7days.resample('30T').agg(
+    {'close': 'last', 'high': 'max', 'low': 'min'}).dropna()
 df_30m = df_30m.join(df_2h[['nk1', 'nd1']]).ffill()
 
 # 在30分钟框架计算第二个指标，尝试多个参数

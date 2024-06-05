@@ -11,3 +11,7 @@
 
 - **30m_d vs 8h_d Comparison**
     ![Figure_1](https://github.com/4D4937/StochasticAnalyzer/assets/24792768/cb19abb9-e60f-48de-b9ed-db5a94aef165)
+
+
+- **8h_w vs 2d_w Comparison**
+    ![Figure_1](https://github.com/4D4937/StochasticAnalyzer/assets/24792768/c7090219-497c-437c-b3ad-34214b51fde8)
